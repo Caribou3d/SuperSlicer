@@ -19,6 +19,9 @@ build*
 deps/build*
 deps/deps-*
 
+resources/localization/*/*.mo
+cmake/CPackConfig.cmake
+
 # MacOS Ignores
 .DS_Store
 
