@@ -6,8 +6,8 @@
 
 **A PrusaSlicer fork (which is a slic3r fork)** (previously Slic3r++)
 
-Prebuilt Windows, Linux and macOS 64-bit releases are available through the [git releases page](https://github.com/supermerill/SuperSlicer/releases). The Linux & macOS builds aren't tested (by me), just compiled, so please report any bugs that may occur during use.  
-For **installers**, check the badges above. Windows users can use chocolatey or scoop.  
+Prebuilt Windows, Linux and macOS 64-bit releases are available through the [git releases page](https://github.com/supermerill/SuperSlicer/releases). The Linux & macOS builds aren't tested (by me), just compiled, so please report any bugs that may occur during use.
+For **installers**, check the badges above. Windows users can use chocolatey or scoop.
 Nightly builds are available through the [git actions page](https://github.com/supermerill/SuperSlicer/actions). Click on the build for your platform and then on the archive name (`nightly_win64` or `SuperSlicer-gtk2.AppImage` or `nightly_macos.dmg`) in the "Artifacts" section in the top right corner.
 
 SuperSlicer takes 3D models (STL, OBJ, AMF) and converts them into G-code
