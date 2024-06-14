@@ -148,11 +148,11 @@ then
     apt update
     if [[ -z "$FOUND_GTK3" ]]
     then
-        echo -e "\nInstalling: libgtk2.0-dev libglew-dev libudev-dev libdbus-1-dev cmake git\n"
-        apt install libgtk2.0-dev libglew-dev libudev-dev libdbus-1-dev cmake git
+        echo -e "\nInstalling: libgtk2.0-dev libglew-dev libudev-dev libdbus-1-dev cmake git gettext fuse\n"
+        apt install libgtk2.0-dev libglew-dev libudev-dev libdbus-1-dev cmake git gettext fuse
     else
-        echo -e "\nFind libgtk-3, installing: libgtk-3-dev libglew-dev libudev-dev libdbus-1-dev cmake git\n"
-        apt install libgtk-3-dev libglew-dev libudev-dev libdbus-1-dev cmake git
+        echo -e "\nFind libgtk-3, installing: libgtk-3-dev libglew-dev libudev-dev libdbus-1-dev cmake git gettext fuse\n"
+        apt install libgtk-3-dev libglew-dev libudev-dev libdbus-1-dev cmake git gettext fuse
     fi
 
     # for ubuntu 22.04:
@@ -280,14 +280,15 @@ then
 
     # cmake
     pushd build > /dev/null
- 
+
     cmake .. -DCMAKE_PREFIX_PATH="$PWD/../deps/build/destdir/usr/local" -DSLIC3R_STATIC=1 ${BUILD_ARGS}
     echo " ... done"
     # make CaribouSlicer
     echo -e "\n[6/9] Building CaribouSlicer ...\n"
     make -j$NCORES Slic3r
     echo -e "\n ... done"
-
+    # make OCCTWrapper.so
+    make OCCTWrapper
     echo -e "\n[7/9] Generating language files ...\n"
     #make .mo
     make gettext_po_to_mo
