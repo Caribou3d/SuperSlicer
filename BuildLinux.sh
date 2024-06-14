@@ -172,12 +172,39 @@ fi
 
 if [[ -z "$FOUND_GTK2_DEV" ]]
 then
-    if [[ -z "$FOUND_GTK3_DEV" ]]
-    then
-	echo -e "\nError, you must install the dependencies before."
-	echo -e "Use option -u with sudo\n"
-	exit 0
-    fi
+if [[ -z "$FOUND_GTK3_DEV" ]]
+then
+    echo "Error, you must install the dependencies before."
+    echo "Use option -u with sudo"
+    exit 0
+fi
+fi
+
+echo "[1/9] Updating submodules..."
+{
+    # update submodule profiles
+    pushd resources/profiles
+    git submodule update --init
+    popd
+}
+
+echo "[2/9] Changing date in version..."
+{
+    # change date in version
+    sed -i "s/+UNKNOWN/_$(date '+%F')/" version.inc
+}
+echo "done"
+
+# mkdir build
+if [ ! -d "build" ]
+then
+    mkdir build
+fi
+
+# mkdir in deps
+if [ ! -d "deps/build" ]
+then
+    mkdir deps/build
 fi
 
 if [[ -n "$BUILD_DEPS" ]]

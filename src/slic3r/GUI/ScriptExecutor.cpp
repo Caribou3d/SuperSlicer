@@ -1373,3 +1373,4 @@ void ScriptContainer::refresh(const ConfigOptionDef& def, boost::any value)
 //TODO find a way to use the depends_on to add the same lock & points as real configoption in the gui
 
 } } }//namespace Slic3r Gui script
+
