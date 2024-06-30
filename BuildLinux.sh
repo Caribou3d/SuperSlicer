@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export ROOT=`pwd`
-export NCORES=`nproc --all`
+export NCORES=`nproc`
 FOUND_GTK2=$(dpkg -l libgtk* | grep gtk2)
 FOUND_GTK3=$(dpkg -l libgtk* | grep gtk-3)
 
@@ -79,7 +79,7 @@ then
         apt install libgtk-3-dev libglew-dev libudev-dev libdbus-1-dev cmake git gettext fuse
     fi
     # for ubuntu 22.04:
-    ubu_version="$(cat /etc/issue)" 
+    ubu_version="$(cat /etc/issue)"
     if [[ $ubu_version == "Ubuntu 22.04"* ]]
     then
         apt install curl libssl-dev libcurl4-openssl-dev m4
@@ -151,29 +151,29 @@ then
         popd
         BUILD_ARGS="${BUILD_ARGS} -DCMAKE_BUILD_TYPE=Debug"
     fi
-    
+
     # cmake deps
     pushd deps/build
         cmake .. $BUILD_ARGS
         echo "done"
-        
+
         # make deps
         echo "[4/9] Building dependencies..."
         make -j$NCORES
         echo "done"
-        
+
         # rename wxscintilla
         echo "[5/9] Renaming wxscintilla library..."
         pushd destdir/usr/local/lib
             if [[ -z "$FOUND_GTK3_DEV" ]]
             then
-                cp libwxscintilla-3.1.a libwx_gtk2u_scintilla-3.1.a
+                cp libwxscintilla-3.2.a libwx_gtk2u_scintilla-3.2.a
             else
-                cp libwxscintilla-3.1.a libwx_gtk3u_scintilla-3.1.a
+                cp libwxscintilla-3.2.a libwx_gtk3u_scintilla-3.2.a
             fi
         popd
         echo "done"
-        
+
         # clean deps
         echo "[6/9] Cleaning dependencies..."
         rm -rf dep_*
@@ -193,19 +193,19 @@ then
     then
         BUILD_ARGS="${BUILD_ARGS} -DCMAKE_BUILD_TYPE=Debug"
     fi
-    
+
     # cmake
     pushd build
         cmake .. -DCMAKE_PREFIX_PATH="$PWD/../deps/build/destdir/usr/local" -DSLIC3R_STATIC=1 ${BUILD_ARGS}
         echo "done"
-        
+
         # make Slic3r
         echo "[8/9] Building Slic3r..."
         make -j$NCORES Slic3r
 
         # make .mo
         make gettext_po_to_mo
-    
+
     popd
     echo "done"
 fi
