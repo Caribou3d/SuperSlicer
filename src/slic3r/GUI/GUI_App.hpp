@@ -365,6 +365,10 @@ public:
     bool is_glsl_version_greater_or_equal_to(unsigned int major, unsigned int minor) const { return m_opengl_mgr.get_gl_info().is_glsl_version_greater_or_equal_to(major, minor); }
     int  GetSingleChoiceIndex(const wxString& message, const wxString& caption, const wxArrayString& choices, int initialSelection);
 
+    void            handle_connect_request_printer_select(const std::string& cmd);
+    void            handle_connect_request_printer_select_inner(const std::string& cmd);
+
+
 #ifdef __WXMSW__
     void            associate_3mf_files();
     void            associate_stl_files();
@@ -383,11 +387,11 @@ private:
     bool            select_language();
 
     bool            config_wizard_startup();
-    // Returns true if the configuration is fine. 
+    // Returns true if the configuration is fine.
     // Returns true if the configuration is not compatible and the user decided to rather close the slicer instead of reconfiguring.
 	bool            check_updates(const bool verbose);
 
-    bool            m_datadir_redefined { false }; 
+    bool            m_datadir_redefined { false };
 };
 
 DECLARE_APP(GUI_App)
