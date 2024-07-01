@@ -367,7 +367,7 @@ public:
 
     void            handle_connect_request_printer_select(const std::string& cmd);
     void            handle_connect_request_printer_select_inner(const std::string& cmd);
-
+    void            show_printer_webview_tab();
 
 #ifdef __WXMSW__
     void            associate_3mf_files();

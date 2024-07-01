@@ -32,6 +32,8 @@ class Tab;
 class PrintHostQueueDialog;
 class Plater;
 class MainFrame;
+class ConnectWebViewPanel;
+class PrinterWebViewPanel;
 
 enum QuickSlice
 {
@@ -85,6 +87,11 @@ class MainFrame : public DPIFrame
     size_t      m_last_selected_plater_tab;
     size_t      m_last_selected_setting_tab;
 
+    ConnectWebViewPanel* m_connect_webview{ nullptr };
+    bool                 m_connect_webview_added{ false };
+    PrinterWebViewPanel* m_printer_webview{ nullptr };
+    bool                 m_printer_webview_added{ false };
+
     std::string     get_base_name(const wxString &full_name, const char *extension = nullptr) const;
     std::string     get_dir_name(const wxString &full_name) const;
 
@@ -108,7 +115,7 @@ class MainFrame : public DPIFrame
     bool can_delete_all() const;
     bool can_reslice() const;
 
-    // MenuBar items changeable in respect to printer technology 
+    // MenuBar items changeable in respect to printer technology
     enum MenuItems
     {                   //   FFF                  SLA
         miExport = 0,   // Export G-code        Export
@@ -117,7 +124,7 @@ class MainFrame : public DPIFrame
         miPrinterTab,   // Different bitmap for Printer Settings
     };
 
-    // vector of a MenuBar items changeable in respect to printer technology 
+    // vector of a MenuBar items changeable in respect to printer technology
     std::vector<wxMenuItem*> m_changeable_menu_items;
     wxMenu* m_calibration_menu = nullptr;
     wxMenuItem* m_layerpreview_menu_item = nullptr;
@@ -150,7 +157,7 @@ public:
     };
 
 private:
-    
+
     ESettingsLayout m_layout{ ESettingsLayout::Unknown };
 
 protected:
@@ -208,7 +215,7 @@ public:
     // 0 = a plater tab, 1 = print setting, 2 = filament settign, 3 = printer setting
     void        select_tab(Tab* tab);
     void        select_tab(ETabType tab = ETabType::Any, bool keep_tab_type = false);
-    ETabType    selected_tab() const; 
+    ETabType    selected_tab() const;
     ETabType    next_preview_tab();
     void        select_view(const std::string& direction);
     // Propagate changed configuration from the Tab to the Plater and save changes to the AppConfig
@@ -221,6 +228,21 @@ public:
 
     void        add_to_recent_projects(const wxString& filename);
     void        technology_changed();
+
+    void    add_connect_webview_tab();
+    void    remove_connect_webview_tab();
+
+    void    show_printer_webview_tab(DynamicPrintConfig* dpc);
+
+    void    add_printer_webview_tab(const wxString& url);
+    void    remove_printer_webview_tab();
+    void    set_printer_webview_tab_url(const wxString& url);
+    bool    get_printer_webview_tab_added() const { return m_printer_webview_added; }
+    void    set_printer_webview_api_key(const std::string& key);
+    void    set_printer_webview_credentials(const std::string& usr, const std::string& psk);
+
+
+
 
     PrintHostQueueDialog* printhost_queue_dlg() { return m_printhost_queue_dlg; }
 

@@ -48,6 +48,7 @@
 #include "GUI_ObjectList.hpp"
 #include "GalleryDialog.hpp"
 #include "NotificationManager.hpp"
+#include "WebViewDialog.hpp"
 
 #ifdef _WIN32
 #include <dbt.h>
@@ -1268,7 +1269,129 @@ void MainFrame::create_preset_tabs()
     freq->create_preset_tab();
     freq = (new TabFrequent(m_tabpanel, "Freq_sla", Preset::Type::TYPE_FREQUENT_SLA));
     freq->create_preset_tab();
+
+    m_connect_webview = new ConnectWebViewPanel(m_tabpanel);
+    m_printer_webview = new PrinterWebViewPanel(m_tabpanel, L"");
+    // new created tabs have to be hidden by default
+    m_connect_webview->Hide();
+    m_printer_webview->Hide();
+
 }
+
+void MainFrame::add_connect_webview_tab()
+{
+    if (m_connect_webview_added) {
+        m_connect_webview->resend_config();
+        return;
+    }
+    // parameters of InsertNewPage (to prevent ambigous overloaded function)
+    // insert "Connect" tab to position next to "Printer" tab
+    // order of tabs: Plater - Print Settings - Filaments - Printers - Prusa Connect - Prusa Link
+
+    int n = m_tabpanel->FindPage(wxGetApp().get_tab(Preset::TYPE_PRINTER)) + 1;
+    wxWindow* page = m_connect_webview;
+    const wxString text(L"Prusa Connect");
+    const std::string bmp_name = "";
+    bool bSelect = false;
+    // m_tabpanel->InsertNewPage(n, page, text, bmp_name, bSelect);
+    m_connect_webview->load_default_url_delayed();
+    m_connect_webview_added = true;
+}
+void MainFrame::remove_connect_webview_tab()
+{
+    if (!m_connect_webview_added) {
+        return;
+    }
+    int n = m_tabpanel->FindPage(m_connect_webview);
+    if (m_tabpanel->GetSelection() == n)
+        m_tabpanel->SetSelection(0);
+    m_tabpanel->RemovePage(size_t(n));
+    m_connect_webview_added = false;
+    m_connect_webview->logout();
+}
+
+void MainFrame::show_printer_webview_tab(DynamicPrintConfig* dpc)
+{
+    // if physical printer is selected
+    if (dpc )
+//    && dpc->option<ConfigOptionEnum<PrintHostType>>("host_type")->value != htPrusaConnect) {
+        std::string url = dpc->opt_string("print_host");
+
+        if (url.find("http://") != 0 && url.find("https://") != 0) {
+            url = "http://" + url;
+        }
+
+        // set password / api key
+        if (dynamic_cast<const ConfigOptionEnum<AuthorizationType>*>(dpc->option("printhost_authorization_type"))->value == AuthorizationType::atKeyPassword) {
+            set_printer_webview_api_key(dpc->opt_string("printhost_apikey"));
+        }
+#if 0 // The user password authentication is not working in prusa link as of now.
+        else {
+            mset_printer_webview_credentials(dpc->opt_string("printhost_user"), dpc->opt_string("printhost_password"));
+        }
+#endif // 0
+        // add printer or change url
+        if (get_printer_webview_tab_added()) {
+            set_printer_webview_tab_url(from_u8(url));
+        }
+        else {
+            add_printer_webview_tab(from_u8(url));
+        }
+    }
+    // if physical printer isn't selected, so delete page from TopBar
+    else {
+        if (m_tabpanel->GetPageText(m_tabpanel->GetSelection()) == _L("Physical Printer"))
+            select_tab(size_t(0));
+        remove_printer_webview_tab();
+    }
+}
+
+void MainFrame::add_printer_webview_tab(const wxString& url)
+{
+    if (m_printer_webview_added) {
+        set_printer_webview_tab_url(url);
+        return;
+    }
+    m_printer_webview_added = true;
+    // add as the last (rightmost) panel
+    // m_tabpanel->AddNewPage(m_printer_webview, _L("Physical Printer"), "");
+    m_printer_webview->set_default_url(url);
+    m_printer_webview->load_default_url_delayed();
+}
+void MainFrame::remove_printer_webview_tab()
+{
+    if (!m_printer_webview_added) {
+        return;
+    }
+    m_printer_webview_added = false;
+    m_printer_webview->Hide();
+    m_tabpanel->RemovePage(m_tabpanel->FindPage(m_printer_webview));
+}
+void MainFrame::set_printer_webview_tab_url(const wxString& url)
+{
+    if (!m_printer_webview_added) {
+        add_printer_webview_tab(url);
+        return;
+    }
+    m_printer_webview->clear();
+    m_printer_webview->set_default_url(url);
+
+    if (m_tabpanel->GetSelection() == m_tabpanel->FindPage(m_printer_webview)) {
+        m_printer_webview->load_url(url);
+    } else {
+        m_printer_webview->load_default_url_delayed();
+    }
+}
+
+void MainFrame::set_printer_webview_api_key(const std::string& key)
+{
+    m_printer_webview->set_api_key(key);
+}
+void MainFrame::set_printer_webview_credentials(const std::string& usr, const std::string& psk)
+{
+    m_printer_webview->set_credentials(usr, psk);
+}
+
 
 void MainFrame::add_created_tab(Tab* panel)
 {

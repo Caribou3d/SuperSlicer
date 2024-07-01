@@ -87,7 +87,7 @@ struct Materials
     Technology technology;
     // use vector for the presets to purpose of save of presets sorting in the bundle
     std::vector<const Preset*> presets;
-    // String is alias of material, size_t number of compatible counters 
+    // String is alias of material, size_t number of compatible counters
     std::vector<std::pair<std::string, size_t>> compatibility_counter;
     std::set<std::string> types;
 	std::set<const Preset*> printers;
@@ -98,12 +98,12 @@ struct Materials
 	void add_printer(const Preset* preset);
     void clear();
     bool containts(const Preset *preset) const {
-        //return std::find(presets.begin(), presets.end(), preset) != presets.end(); 
+        //return std::find(presets.begin(), presets.end(), preset) != presets.end();
 		return std::find_if(presets.begin(), presets.end(),
 			[preset](const Preset* element) { return element == preset; }) != presets.end();
 
     }
-	
+
 	bool get_omnipresent(const Preset* preset) {
 		return get_printer_counter(preset) == printers.size();
 	}
@@ -117,7 +117,7 @@ struct Materials
         return ret_vec;
     }
 
-	
+
 
 	size_t get_printer_counter(const Preset* preset) {
 		for (auto it : compatibility_counter) {
@@ -130,7 +130,7 @@ struct Materials
     const std::string& appconfig_section() const;
     const std::string& get_type(const Preset *preset) const;
     const std::string& get_vendor(const Preset *preset) const;
-	
+
 	template<class F> void filter_presets(const Preset* printer, const std::string& type, const std::string& vendor, F cb) {
 		for (auto preset : presets) {
 			const Preset& prst = *(preset);
@@ -151,6 +151,8 @@ struct Materials
     static const std::string& get_material_vendor(const Preset *preset);
 };
 
+
+class ConfigWizardWebViewPage;
 
 struct PrinterPickerEvent;
 
@@ -246,7 +248,7 @@ struct PagePrinters: ConfigWizardPage
         wxString title,
         wxString shortname,
         const VendorProfile &vendor,
-        uint32_t indent, 
+        uint32_t indent,
         Technology technology);
 
     void select_all(bool select, bool alternates = false);
@@ -298,7 +300,7 @@ template<class T, class D> struct DataList : public T
 
     void on_mouse_move(const wxPoint& position) {
         int item = T::HitTest(position);
-       
+
         if(item == wxHitTest::wxHT_WINDOW_INSIDE)
             BOOST_LOG_TRIVIAL(error) << "hit test wxHT_WINDOW_INSIDE";
         else if (item == wxHitTest::wxHT_WINDOW_OUTSIDE)
@@ -471,8 +473,8 @@ struct PageTemperatures: ConfigWizardPage
 };
 
 // hypothetically, each vendor can has printers both of technologies (FFF and SLA)
-typedef std::map<std::string /* = vendor ID */, 
-                 std::pair<PagePrinters* /* = FFF page */, 
+typedef std::map<std::string /* = vendor ID */,
+                 std::pair<PagePrinters* /* = FFF page */,
                            PagePrinters* /* = SLA page */>> Pages3rdparty;
 
 
@@ -551,7 +553,7 @@ struct ConfigWizard::priv
     std::unique_ptr<DynamicPrintConfig> custom_config;           // Backing for custom printer definition
     bool any_fff_selected;        // Used to decide whether to display Filaments page
     bool any_sla_selected;        // Used to decide whether to display SLA Materials page
-    bool custom_printer_selected { false }; 
+    bool custom_printer_selected { false };
     // Set to true if there are none FFF printers on the main FFF page. If true, only SLA printers are shown (not even custum printers)
     bool only_sla_mode { false };
 
@@ -567,6 +569,7 @@ struct ConfigWizard::priv
     wxButton *btn_cancel = nullptr;
 
     PageWelcome      *page_welcome = nullptr;
+    ConfigWizardWebViewPage *page_login = nullptr;
     PageMaterials    *page_filaments = nullptr;
     PageMaterials    *page_sla_materials = nullptr;
     PageCustom       *page_custom = nullptr;
