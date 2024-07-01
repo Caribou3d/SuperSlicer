@@ -7,7 +7,7 @@ else sysctl_bin=sysctl  # If not found in sbin, hope
 fi
 
 export ROOT=`pwd`
-export NCORES=`"$sysctl_bin" -n hw.ncpu`
+export NCORES=`nproc`
 
 while getopts ":ih" opt; do
   case ${opt} in

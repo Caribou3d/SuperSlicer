@@ -1986,10 +1986,10 @@ void GUI_App::calibration_pressureadv_dialog()
 {
     change_calibration_dialog(nullptr, new CalibrationPressureAdvDialog(this, mainframe));
 }
-void GUI_App::freecad_script_dialog()
-{
-    change_calibration_dialog(nullptr, new FreeCADDialog(this, mainframe));
-}
+// void GUI_App::freecad_script_dialog()
+// {
+//     change_calibration_dialog(nullptr, new FreeCADDialog(this, mainframe));
+// }
 void GUI_App::tiled_canvas_dialog()
 {
     change_calibration_dialog(nullptr, new CreateMMUTiledCanvas(this, mainframe));
