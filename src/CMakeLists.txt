@@ -58,15 +58,6 @@ if (SLIC3R_GUI)
         message(STATUS "wx-config path: ${wxWidgets_CONFIG_EXECUTABLE}")
     endif()
 
-    find_package(JPEG MODULE QUIET)
-    find_package(NanoSVG REQUIRED)
-
-    string(REGEX MATCH "wxpng" WX_PNG_BUILTIN ${wxWidgets_LIBRARIES})
-    if (PNG_FOUND AND NOT WX_PNG_BUILTIN)
-        list(FILTER wxWidgets_LIBRARIES EXCLUDE REGEX png)
-        list(APPEND wxWidgets_LIBRARIES ${PNG_LIBRARIES})
-    endif ()
-
     include(${wxWidgets_USE_FILE})
 
     find_package(JPEG QUIET)
