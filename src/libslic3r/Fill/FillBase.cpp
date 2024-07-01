@@ -3653,8 +3653,10 @@ FillWithPerimeter::fill_surface_extrusion(const Surface* surface, const FillPara
 
     // === extrude perimeter & associated surface at the same time, in the right order ===
     //generate perimeter:
+    coord_t offset_for_overlap = scale_d(this->get_spacing() / 2) * ((1 - overlap_ratio) / 2);
     ExPolygons path_perimeter = offset2_ex(ExPolygons{ surface->expolygon },
-        scale_d(-this->get_spacing()), scale_d(this->get_spacing() / 2),
+                                            scale_d(-this->get_spacing()) / 2 - offset_for_overlap,
+                                            offset_for_overlap,
         ClipperLib::jtMiter, scale_d(this->get_spacing()) * 10);
     //fix a bug that can happens when (positive) offsetting with a big miter limit and two island merge. See https://github.com/supermerill/SuperSlicer/issues/609
     path_perimeter = intersection_ex(path_perimeter, offset_ex(surface->expolygon, scale_d(-this->get_spacing() / 2)));

@@ -934,13 +934,14 @@ namespace client
                 if (!vector_opt->is_extruder_size())
                     ctx->throw_exception("Referencing a vector variable when scalar is expected", opt.it_range);
             }
-            const ConfigOptionDef* opt_def;
+            const ConfigOptionDef* opt_def = nullptr;
             switch (opt.opt->type()) {
             case coFloat:   output.set_d(opt.opt->get_float());   break;
             case coInt:     output.set_i(opt.opt->get_int());     break;
             case coString:  output.set_s(static_cast<const ConfigOptionString*>(opt.opt)->value); break;
             case coPercent: output.set_d(opt.opt->get_float());   break;
-            case coPoint:   output.set_s(opt.opt->serialize());  break;
+            case coPoint:
+            case coGraph:
             case coEnum:    output.set_s(opt.opt->serialize());  break;
             case coBool:    output.set_b(opt.opt->get_bool());    break;
             case coFloatOrPercent:
@@ -956,7 +957,7 @@ namespace client
 			        opt_def = print_config_def.get(opt_key);
 			        assert(opt_def != nullptr);
 			        double v = opt.opt->get_float() * 0.01; // percent to ratio
-			        for (;;) {
+                    if (opt_def) for (;;) {
 			        	const ConfigOption *opt_parent = opt_def->ratio_over.empty() ? nullptr : ctx->resolve_symbol(opt_def->ratio_over);
 			        	if (opt_parent == nullptr)
 			                ctx->throw_exception("FloatOrPercent variable failed to resolve the \"ratio_over\" dependencies", opt.it_range);
@@ -985,7 +986,7 @@ namespace client
 		    }
             case coInts:
                 opt_def = print_config_def.get(opt_key);
-                if (opt_def->is_vector_extruder) {
+                if (opt_def && opt_def->is_vector_extruder) {
                     output.set_i(int(((ConfigOptionVectorBase*)opt.opt)->get_float(int(ctx->current_extruder_id))));
                     break;
                 } else
@@ -1019,7 +1020,13 @@ namespace client
                     break;
                 }else
                     ctx->throw_exception("Unknown scalar variable type", opt.it_range);
-                //TODO: coFloatOrPercents
+            case coGraphs:
+                vector_opt = static_cast<const ConfigOptionVectorBase*>(opt.opt);
+                if (vector_opt->is_extruder_size()) {
+                    output.set_s(((ConfigOptionGraphs*)opt.opt)->get_at(ctx->current_extruder_id).serialize());
+                    break;
+                }else
+                    ctx->throw_exception("Unknown scalar variable type", opt.it_range);
             default:
                 ctx->throw_exception("Unknown scalar variable type", opt.it_range);
             }
@@ -1050,6 +1057,7 @@ namespace client
             case coPercents: output.set_d(static_cast<const ConfigOptionPercents*>(opt.opt)->get_at(idx)); break;
             case coFloatsOrPercents: output.set_d(static_cast<const ConfigOptionFloatsOrPercents*>(opt.opt)->get_at(idx).value); break;
             case coPoints:   output.set_s(to_string(static_cast<const ConfigOptionPoints  *>(opt.opt)->get_at(idx))); break;
+            case coGraphs:   output.set_s(static_cast<const ConfigOptionGraphs  *>(opt.opt)->get_at(idx).serialize()); break;
             case coBools:    output.set_b(static_cast<const ConfigOptionBools   *>(opt.opt)->get_at(idx) != 0); break;
             default:
                 ctx->throw_exception("Unknown vector variable type", opt.it_range);
@@ -1802,7 +1810,7 @@ void PlaceholderParser::parse_custom_variables(const ConfigOptionStrings& filame
     std::map<std::string, std::vector<std::string>> name2var_array;
     const std::vector<std::string> empty_array(filament_custom_variables.size());
 
-    for (int extruder_id = 0; extruder_id < filament_custom_variables.size(); ++extruder_id)
+    for (size_t extruder_id = 0; extruder_id < filament_custom_variables.size(); ++extruder_id)
     {
         std::string raw_text = filament_custom_variables.get_at(extruder_id);
         boost::erase_all(raw_text, "\r");

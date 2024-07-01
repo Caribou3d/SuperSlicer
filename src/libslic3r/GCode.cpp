@@ -5617,10 +5617,11 @@ void GCode::_extrude_line(std::string& gcode_str, const Line& line, const double
         //interpolate and verify
         double new_extrusion_value = extrusion_value * graph.interpolate(unscaled_line_length);
         assert(new_extrusion_value > 0.0);
-        if (new_extrusion_value > 0.0 && new_extrusion_value != extrusion_value) {
-            extrusion_value = new_extrusion_value;
+        if (new_extrusion_value != extrusion_value) {
+            extrusion_value = (new_extrusion_value > 0.0) ? new_extrusion_value : 0.0;
             if (m_config.gcode_comments) {
-                comment_copy += Slic3r::format(_(L(" | Old Flow Value: %0.5f Length: %0.5f")), extrusion_value, unscaled_line_length);
+                comment_copy += Slic3r::format(_(L(" | Old Flow Value: %0.5f Length: %0.5f")), extrusion_value,
+                                               unscaled_line_length);
             }
         }
     }
