@@ -1,12 +1,12 @@
 #!/bin/bash
 
 export ROOT=`pwd`
-export NCORES=`nproc --all`
+export NCORES=`nproc`
 FOUND_GTK2=$(dpkg -l libgtk* | grep gtk2)
 FOUND_GTK3=$(dpkg -l libgtk* | grep gtk-3)
 
 unset name
-while getopts ":dsiuhgb" opt; do
+while getopts ":dstiuhgb" opt; do
   case ${opt} in
     u )
         UPDATE_LIB="1"
@@ -20,18 +20,22 @@ while getopts ":dsiuhgb" opt; do
     s )
         BUILD_SLIC3R="1"
         ;;
+    t )
+        BUILD_TESTS="1"
+        ;;        
     b )
         BUILD_DEBUG="1"
         ;;
     g )
         FOUND_GTK3=""
         ;;
-    h ) echo "Usage: ./BuildLinux.sh [-i][-u][-d][-s][-b][-g]"
+    h ) echo "Usage: ./BuildLinux.sh [-i][-u][-d][-s][-t][-b][-g]"
         echo "   -i: Generate appimage (optional)"
         echo "   -g: force gtk2 build"
         echo "   -b: build in debug mode"
         echo "   -d: build deps (optional)"
         echo "   -s: build slic3r (optional)"
+        echo "   -t: build tests (in combination with -s)"        
         echo "   -u: only update clock & dependency packets (optional and need sudo)"
         echo "For a first use, you want to 'sudo ./BuildLinux.sh -u'"
         echo "   and then './BuildLinux.sh -dsi'"
@@ -42,12 +46,13 @@ done
 
 if [ $OPTIND -eq 1 ]
 then
-    echo "Usage: ./BuildLinux.sh [-i][-u][-d][-s][-b][-g]"
+    echo "Usage: ./BuildLinux.sh [-i][-u][-d][-s][-t][-b][-g]"
     echo "   -i: Generate appimage (optional)"
     echo "   -g: force gtk2 build"
     echo "   -b: build in debug mode"
     echo "   -d: build deps (optional)"
     echo "   -s: build slic3r (optional)"
+    echo "   -t: build tests (in combination with -s)"    
     echo "   -u: only update clock & dependency packets (optional and need sudo)"
     echo "For a first use, you want to 'sudo ./BuildLinux.sh -u'"
     echo "   and then './BuildLinux.sh -dsi'"
@@ -194,6 +199,13 @@ then
         BUILD_ARGS="${BUILD_ARGS} -DCMAKE_BUILD_TYPE=Debug"
     fi
     
+    if [[ -n "$BUILD_TESTS" ]]
+    then
+        BUILD_ARGS="${BUILD_ARGS} -DCMAKE_BUILD_TESTS=1"
+    else
+        BUILD_ARGS="${BUILD_ARGS} -DCMAKE_BUILD_TESTS=0"
+    fi
+
     # cmake
     pushd build
         cmake .. -DCMAKE_PREFIX_PATH="$PWD/../deps/build/destdir/usr/local" -DSLIC3R_STATIC=1 ${BUILD_ARGS}

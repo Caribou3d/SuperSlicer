@@ -19,7 +19,7 @@ SCENARIO("denser infills: ")
         WHEN("dense infill to enlarged") {
             Model model{};
             Print print{};
-            DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+            DynamicPrintConfig&&config = Slic3r::DynamicPrintConfig::full_print_config();
             config.set_key_value("layer_height", new ConfigOptionFloat(0.2));
             config.set_key_value("first_layer_height", new ConfigOptionFloatOrPercent(0.2, false));
             config.set_key_value("infill_dense", new ConfigOptionBool(true));
@@ -88,7 +88,7 @@ SCENARIO("denser infills: ")
         WHEN("dense infill to auto") {
             Model model{};
             Print print{};
-            DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+            DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
             config.set_key_value("layer_height", new ConfigOptionFloat(0.2));
             config.set_key_value("first_layer_height", new ConfigOptionFloatOrPercent(0.2, false));
             config.set_key_value("infill_dense", new ConfigOptionBool(true));
@@ -150,7 +150,7 @@ SCENARIO("denser infills: ")
         WHEN("dense infill to auto-not-full") {
             Model model{};
             Print print{};
-            DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+            DynamicPrintConfig&&config = Slic3r::DynamicPrintConfig::full_print_config();
             config.set_key_value("layer_height", new ConfigOptionFloat(0.2));
             config.set_key_value("first_layer_height", new ConfigOptionFloatOrPercent(0.2, false));
             config.set_key_value("infill_dense", new ConfigOptionBool(true));

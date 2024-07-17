@@ -214,8 +214,8 @@ TEST_CASE("Fill area: check if periemter give the good values")
 {
         Model model{};
         TriangleMesh sample_mesh = make_cube(5, 5, 0.2);
-        double volume = (5 * 5 * 0.2);
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        // double volume = (5 * 5 * 0.2);
+        DynamicPrintConfig&&config = Slic3r::DynamicPrintConfig::full_print_config();
         config.set_key_value("perimeters", new ConfigOptionInt(1));
         config.set_key_value("top_solid_layers", new ConfigOptionInt(1));
         config.set_key_value("bottom_solid_layers", new ConfigOptionInt(1));
@@ -378,7 +378,7 @@ TEST_CASE("Fill: extrude gcode and check it")
         const double volume = (5 * 5 * 0.2);
         //sample_mesh.repair();
 
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         config.set_key_value("perimeters", new ConfigOptionInt(1));
         config.set_key_value("top_solid_layers", new ConfigOptionInt(1));
         config.set_key_value("bottom_solid_layers", new ConfigOptionInt(1));
@@ -414,7 +414,7 @@ TEST_CASE("Fill: extrude gcode and check it")
         config.set_deserialize("seam_gap", "0");
         config.set_key_value("layer_height", new ConfigOptionFloat(0.2)); // get a known number of layers
         config.set_key_value("first_layer_height", new ConfigOptionFloatOrPercent(0.2, false));
-        auto event_counter{ 0U };
+        // auto event_counter{ 0U };
         std::string stage;
         Print print{};
         Slic3r::Test::init_print(print, { sample_mesh }, model, &config);
@@ -524,7 +524,7 @@ TEST_CASE("Fill: extrude gcode and check it")
         TriangleMesh sample_mesh = make_cylinder(5, 0.2);
         const double volume = (PI * 25 * 0.2);
 
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         config.set_key_value("perimeters", new ConfigOptionInt(1));
         config.set_key_value("top_solid_layers", new ConfigOptionInt(1));
         config.set_key_value("bottom_solid_layers", new ConfigOptionInt(1));
@@ -547,7 +547,7 @@ TEST_CASE("Fill: extrude gcode and check it")
         config.set_key_value("external_perimeter_extrusion_width", new ConfigOptionFloatOrPercent(0.5, false));
         config.set_key_value("solid_infill_extrusion_width", new ConfigOptionFloatOrPercent(0.5, false));
         config.set_key_value("top_infill_extrusion_width", new ConfigOptionFloatOrPercent(0.5, false));
-        auto event_counter{ 0U };
+        //auto event_counter{ 0U };
         std::string stage;
         Print print{};
         Slic3r::Test::init_print(print, { sample_mesh }, model, &config);

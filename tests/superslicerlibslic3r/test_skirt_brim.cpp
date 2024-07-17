@@ -13,7 +13,7 @@ constexpr char* BRIM_TAG = "Brim";
 SCENARIO("skirt test by merill", "") {
 
     GIVEN("2 objects, don't complete individual object") {
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         // remove noise
         config.set_deserialize("top_solid_layers", "0");
         config.set_deserialize("bottom_solid_layers", "0");
@@ -153,7 +153,7 @@ SCENARIO("skirt test by merill", "") {
     }
 
     GIVEN("3 objects, complete individual object") {
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         // remove noise
         config.set_deserialize("top_solid_layers", "0");
         config.set_deserialize("bottom_solid_layers", "0");
@@ -293,7 +293,7 @@ SCENARIO("skirt test by merill", "") {
 }
 SCENARIO("Original Slic3r Skirt/Brim tests", "[!mayfail]") {
     GIVEN("Configuration with a skirt height of 2") {
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         config.set_deserialize("skirts", "1");
         config.set_deserialize("skirt_height", "2");
         config.set_deserialize("perimeters", "1");
@@ -334,7 +334,7 @@ SCENARIO("Original Slic3r Skirt/Brim tests", "[!mayfail]") {
 
 
     GIVEN("A default configuration") {
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         config.set_deserialize("support_material_speed", "99");
 
         // avoid altering speeds unexpectedly

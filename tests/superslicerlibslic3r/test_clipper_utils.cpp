@@ -237,7 +237,8 @@ SCENARIO("Various Clipper operations - t/clipper.t", "[ClipperUtils]") {
         Slic3r::Polygon  square { { 10, 10 }, { 20, 10 }, { 20, 20 }, { 10, 20 } };
         Slic3r::Polyline square_pl = square.split_at_first_point();
         WHEN("no-op diff_pl") {
-            Slic3r::Polylines res = Slic3r::diff_pl({ square_pl }, {});
+            //Slic3r::Polylines res = Slic3r::diff_pl({ square_pl }, {});
+            Slic3r::Polylines res = Slic3r::diff_pl(Slic3r::Polylines{ square_pl }, Slic3r::Polygons{});
             THEN("returns the right number of polylines") {
                 REQUIRE(res.size() == 1);
             }
@@ -335,8 +336,8 @@ TEST_CASE("Testing offset and offset_ex ", "[ClipperUtils]") {
 
         Polygons result = Slic3r::offset(src_polygon, scale_d(1), ClipperLib::JoinType::jtMiter, 3);
         REQUIRE(result.size() == 2);
-        REQUIRE(result[0].is_counter_clockwise() || result[1].is_counter_clockwise());
-        REQUIRE(result[0].is_clockwise() || result[1].is_clockwise());
+        REQUIRE((result[0].is_counter_clockwise() || result[1].is_counter_clockwise()));
+        REQUIRE((result[0].is_clockwise() || result[1].is_clockwise()));
         
         ExPolygons result_ex = Slic3r::offset_ex(ExPolygon(src_polygon), scale_d(1), ClipperLib::JoinType::jtMiter, 3);
         REQUIRE(result_ex.size() == 1);

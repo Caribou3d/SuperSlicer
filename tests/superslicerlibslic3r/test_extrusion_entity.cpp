@@ -89,7 +89,7 @@ SCENARIO("ExtrusionEntityCollection: Polygon flattening") {
 }
 
 SCENARIO("ExtrusionEntityCollection: no sort") {
-    DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+    DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
     config.set_key_value("gcode_comments", new ConfigOptionBool(true));
     config.set_deserialize("skirts", "0");
     Model model{};

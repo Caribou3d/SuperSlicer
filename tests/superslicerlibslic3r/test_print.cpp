@@ -16,7 +16,7 @@ using namespace std::literals;
 
 SCENARIO("PrintObject: Perimeter generation") {
     GIVEN("20mm cube and default config & 0.3 layer height") {
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         TestMesh m = TestMesh::cube_20x20x20;
         Model model{};
         config.set_key_value("fill_density", new ConfigOptionPercent(0));
@@ -54,7 +54,7 @@ SCENARIO("PrintObject: Perimeter generation") {
 
 SCENARIO("Print: Skirt generation") {
     GIVEN("20mm cube and default config") {
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         TestMesh m = TestMesh::cube_20x20x20;
         Slic3r::Model model{};
         config.set_key_value("skirt_height", new ConfigOptionInt(1));
@@ -87,7 +87,7 @@ void test_is_solid_infill(Print &p, size_t obj_id, size_t layer_id, bool check =
 
 SCENARIO("Print: Changing number of solid surfaces does not cause all surfaces to become internal.") {
     GIVEN("sliced 20mm cube and config with top_solid_surfaces = 2 and bottom_solid_surfaces = 1") {
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         TestMesh m { TestMesh::cube_20x20x20 };
         config.set_key_value("top_solid_layers", new ConfigOptionInt(2));
         config.set_key_value("bottom_solid_layers", new ConfigOptionInt(1));
@@ -139,7 +139,7 @@ SCENARIO("Print: Changing number of solid surfaces does not cause all surfaces t
 
 SCENARIO("Print: Brim generation") {
     GIVEN("20mm cube and default config, 1mm first layer width") {
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         TestMesh m{ TestMesh::cube_20x20x20 };
         Slic3r::Model model{};
         config.set_key_value("first_layer_extrusion_width", new ConfigOptionFloatOrPercent(1, false));
@@ -244,7 +244,7 @@ struct GetFirst : ExtrusionVisitorRecursive
 
 SCENARIO("Print: perimeter generation : cube with hole, just enough space for two loops at a point")
 {
-    DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+    DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
     Slic3r::Model       model{};
     config.set_key_value("first_layer_extrusion_width", new ConfigOptionFloatOrPercent(0.42, false));
     config.set_deserialize("nozzle_diameter", "0.4");
@@ -335,7 +335,7 @@ struct GetAll : ExtrusionVisitorRecursive
     void use(ExtrusionLoop& loop) override { loops.push_back(&loop); }
 };
 SCENARIO("Print: perimeter generation : cube with hole in center") {
-    DynamicPrintConfig& config = Slic3r::DynamicPrintConfig::full_print_config();
+    DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
     Slic3r::Model model{};
     config.set_key_value("first_layer_extrusion_width", new ConfigOptionFloatOrPercent(0.42, false));
     config.set_deserialize("nozzle_diameter", "0.4");

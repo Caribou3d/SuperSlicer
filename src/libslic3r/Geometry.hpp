@@ -27,6 +27,8 @@ enum Orientation
     ORIENTATION_COLINEAR = 0
 };
 
+static constexpr double epsilon = 1e-4; // Add this line
+
 // Return orientation of the three points (clockwise, counter-clockwise, colinear)
 // The predicate is exact for the coord_t type, using 64bit signed integers for the temporaries.
 // which means, the coord_t types must not have some of the topmost bits utilized.

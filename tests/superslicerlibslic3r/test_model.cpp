@@ -6,7 +6,7 @@
 #include <libslic3r/Model.hpp>
 #include <libslic3r/ModelArrange.hpp>
 #include <libslic3r/Arrange.hpp>
-#include <libslic3r/sla/IndexedMesh.hpp>
+#include <libslic3r/SLA/IndexedMesh.hpp>
 #include "test_data.hpp" // get access to init_print, etc
 
 using namespace Slic3r;
@@ -19,7 +19,7 @@ SCENARIO("Model construction") {
         Slic3r::sla::IndexedMesh indexed_mesh(sample_mesh); // for ease of use
         //sample_mesh.repair();
         
-        DynamicPrintConfig &config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         Slic3r::Print print{};
         print.apply(model, config);
         //Slic3r::Test::init_print(print, { sample_mesh }, model, config);
@@ -32,7 +32,7 @@ SCENARIO("Model construction") {
                 REQUIRE(model.objects.size() == 1);
             }
 
-            mo->add_volume(sample_mesh, false);
+            mo->add_volume(sample_mesh);
             THEN("Model volume list == 1") {
                 REQUIRE(mo->volumes.size() == 1);
             }

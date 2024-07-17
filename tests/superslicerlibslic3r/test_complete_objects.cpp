@@ -51,7 +51,7 @@ std::unique_ptr<Print> init_print_with_dist(DynamicPrintConfig &config, float di
 SCENARIO("Complete objects separatly") {
     GIVEN("20mm cubes and extruder_clearance_radius to 10") {
         ConfigSubstitutionContext subst(ForwardCompatibilitySubstitutionRule::Disable);
-        DynamicPrintConfig& config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         config.set_key_value("fill_density", new ConfigOptionPercent(0));
         config.set_deserialize("nozzle_diameter", "0.4", subst);
         config.set_deserialize("layer_height", "0.3", subst);
@@ -59,7 +59,7 @@ SCENARIO("Complete objects separatly") {
         config.set_deserialize("extruder_clearance_radius", "10", subst);
         config.set_deserialize("skirts", "0", subst);
         config.set_deserialize("skirt_height", "0", subst);
-        config.set_deserialize("brim_width", "0", subst);
+        config.set_deserialize("brim_width", "0", subst); 
 
         std::pair<PrintBase::PrintValidationError, std::string>  result;
 
@@ -126,7 +126,7 @@ SCENARIO("Complete objects separatly") {
 SCENARIO("Arrange is good enough") {
     GIVEN("20mm cubes and extruder_clearance_radius to 10") {
         ConfigSubstitutionContext subst(ForwardCompatibilitySubstitutionRule::Disable);
-        DynamicPrintConfig& config = Slic3r::DynamicPrintConfig::full_print_config();
+        DynamicPrintConfig&& config = Slic3r::DynamicPrintConfig::full_print_config();
         config.set_key_value("fill_density", new ConfigOptionPercent(0));
         config.set_deserialize("nozzle_diameter", "0.4", subst);
         config.set_deserialize("layer_height", "0.3", subst);

@@ -36,7 +36,7 @@ SCENARIO("lift() and unlift() behavior with large values of Z", "[!shouldfail]")
                 const std::string lift = writer.lift(lift_layer_id);
                 REQUIRE(lift.size() > 0);
                 AND_WHEN("Z is moved post-lift to the same delta as the config Z lift") {
-                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.values[0]).size() == 0);
+                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.get_values()[0]).size() == 0);
                     AND_WHEN("GCodeWriter::Unlift() is called") {
                         const std::string unlift = writer.unlift();
                         REQUIRE(unlift.size() == 0); // we're the same height so no additional move happens.
@@ -69,7 +69,7 @@ SCENARIO("lift() is not ignored after unlift() at normal values of Z") {
             AND_WHEN("GcodeWriter::Lift() is called") {
                 REQUIRE(writer.lift(lift_layer_id).size() > 0);
                 AND_WHEN("Z is moved post-lift to the same delta as the config Z lift") {
-                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.values[0]).size() == 0);
+                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.get_values()[0]).size() == 0);
                     AND_WHEN("GCodeWriter::Unlift() is called") {
                         REQUIRE(writer.unlift().size() == 0); // we're the same height so no additional move happens.
                         THEN("GCodeWriter::Lift() emits gcode.") {
@@ -85,7 +85,7 @@ SCENARIO("lift() is not ignored after unlift() at normal values of Z") {
             AND_WHEN("GcodeWriter::Lift() is called") {
                 REQUIRE(writer.lift(lift_layer_id).size() > 0);
                 AND_WHEN("Z is moved post-lift to the same delta as the config Z lift") {
-                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.values[0]).size() == 0);
+                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.get_values()[0]).size() == 0);
                     AND_WHEN("GCodeWriter::Unlift() is called") {
                         REQUIRE(writer.unlift().size() == 0); // we're the same height so no additional move happens.
                         THEN("GCodeWriter::Lift() emits gcode.") {
@@ -101,7 +101,7 @@ SCENARIO("lift() is not ignored after unlift() at normal values of Z") {
             AND_WHEN("GcodeWriter::Lift() is called") {
                 REQUIRE(writer.lift(lift_layer_id).size() > 0);
                 AND_WHEN("Z is moved post-lift to the same delta as the config Z lift") {
-                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.values[0]).size() == 0);
+                    REQUIRE(writer.travel_to_z(trouble_Z + config.retract_lift.get_values()[0]).size() == 0);
                     AND_WHEN("GCodeWriter::Unlift() is called") {
                         REQUIRE(writer.unlift().size() == 0); // we're the same height so no additional move happens.
                         THEN("GCodeWriter::Lift() emits gcode.") {

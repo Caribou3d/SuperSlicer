@@ -9,7 +9,7 @@
 #include "test_data.hpp" // get access to init_print, etc
 
 #include <libslic3r/Config.hpp>
-#include <libslic3r/Model.hpp>"
+#include <libslic3r/Model.hpp>
 #include <libslic3r/Config.hpp>
 #include <libslic3r/GCodeReader.hpp>
 #include <libslic3r/Flow.hpp>
@@ -31,7 +31,7 @@ using namespace Slic3r;
 SCENARIO("Extrusion width specifics", "[!mayfail]") {
     GIVEN("A config with a skirt, brim, some fill density, 3 perimeters, and 1 bottom solid layer and a 20mm cube mesh") {
         // this is a sharedptr
-		DynamicPrintConfig &config {Slic3r::DynamicPrintConfig::full_print_config()};
+		DynamicPrintConfig&& config {Slic3r::DynamicPrintConfig::full_print_config()};
         config.set_key_value("skirts", new ConfigOptionInt{1});
         config.set_key_value("brim_width", new ConfigOptionFloat{2});
         config.set_key_value("perimeters", new ConfigOptionInt{3});
@@ -117,10 +117,10 @@ SCENARIO(" Bridge flow specifics.", "[!mayfail]") {
 /// spacing, etc
 SCENARIO("Flow: Flow math for non-bridges", "[!mayfail]") {
     auto width_0 = ConfigOptionFloatOrPercent(0.0, false);
-    auto spacing_0 = ConfigOptionFloatOrPercent(0.0, false,true);
+    auto spacing_0 = ConfigOptionFloatOrPercent(0.0, false);
     GIVEN("Nozzle Diameter of 0.4, a desired width of 1mm and layer height of 0.5") {
         auto width_1 = ConfigOptionFloatOrPercent(1.0, false);
-        auto spacing_1 = ConfigOptionFloatOrPercent(1.0, false,true);
+        auto spacing_1 = ConfigOptionFloatOrPercent(1.0, false);
         float spacing {0.4f};
         float nozzle_diameter {0.4f};
         float bridge_flow {1.0f};
@@ -197,7 +197,7 @@ SCENARIO("Flow: Flow math for bridges", "[!mayfail]") {
     GIVEN("Nozzle Diameter of 0.4, a desired width of 1mm and layer height of 0.5") {
         float BRIDGE_EXTRA_SPACING_MULT = 0.f; // not used anymore
         auto width {ConfigOptionFloatOrPercent{1.0, false}};
-        auto spacing = ConfigOptionFloatOrPercent(1.0, false, false);
+        auto spacing = ConfigOptionFloatOrPercent(1.0, false);
         float nozzle_diameter {0.4f};
         float spacing_ratio {1.0f};
         float layer_height {0.5f};
@@ -215,7 +215,7 @@ SCENARIO("Flow: Flow math for bridges", "[!mayfail]") {
 }
 
 SCENARIO("Flow: stats are okay") {
-    DynamicPrintConfig &config{Slic3r::DynamicPrintConfig::full_print_config()};
+    DynamicPrintConfig&& config{Slic3r::DynamicPrintConfig::full_print_config()};
     config.set_key_value("skirts", new ConfigOptionInt{0});
     config.set_key_value("brim_width", new ConfigOptionFloat{0});
     config.set_key_value("fill_density", new ConfigOptionPercent{0});
