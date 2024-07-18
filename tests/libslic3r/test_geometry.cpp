@@ -10,7 +10,7 @@
 #include "libslic3r/Geometry/ConvexHull.hpp"
 #include "libslic3r/ClipperUtils.hpp"
 #include "libslic3r/ShortestPath.hpp"
-
+#include "libslic3r/ExtrusionEntityCollection.hpp"
 //#include <random>
 //#include "libnest2d/tools/benchmark.h"
 #include "libslic3r/SVG.hpp"
@@ -21,25 +21,67 @@
 
 using namespace Slic3r;
 
-ExtrusionPath* createEP(std::initializer_list<Point> vec) {
-    ExtrusionPath *ep = new ExtrusionPath{ ExtrusionRole::erNone };
-    ep->polyline = vec;
+// ExtrusionPath* createEP(std::initializer_list<Point> vec) {
+//     ExtrusionPath *ep = new ExtrusionPath{ ExtrusionRole::erNone };
+//     ep->polyline = vec;
+//     return ep;
+// }
+// ExtrusionEntityCollection* createEC(std::initializer_list<ExtrusionEntity*> vec, bool no_sort = false) {
+//     ExtrusionEntityCollection *ec = new ExtrusionEntityCollection{};
+//     ec->set_can_sort_reverse(!no_sort, !no_sort);
+//     ec->entities = vec;
+//     return ec;
+// }
+// ExtrusionLoop* createEL(std::vector<std::initializer_list<Point>> vec) {
+//     ExtrusionLoop *el = new ExtrusionLoop{};
+//     for (std::initializer_list<Point> &path : vec) {
+//         el->paths.emplace_back(ExtrusionRole::erNone);
+//         el->paths.back().polyline = path;
+//     }
+//     return el;
+// }
+
+
+
+Slic3r::ExtrusionPath* createEP(std::initializer_list<Slic3r::Point> vec) {
+    Slic3r::ExtrusionPath *ep = new Slic3r::ExtrusionPath{ Slic3r::ExtrusionRole::erNone };
+    Slic3r::PolylineOrArc polyline_or_arc{vec};  // Convert initializer_list to PolylineOrArc
+    ep->polyline = polyline_or_arc;  // Assign PolylineOrArc to polyline
     return ep;
 }
+
+// ExtrusionEntityCollection* createEC(std::initializer_list<ExtrusionEntity*> vec, bool no_sort = false) {
+//     ExtrusionEntityCollection *ec = new ExtrusionEntityCollection{};
+//     ec->set_can_sort_reverse(!no_sort, !no_sort);
+//     ec->set_entities() = vec; // Use set_entities() instead of directly assigning to m_entities
+//     return ec;
+// }
+
+
+
 ExtrusionEntityCollection* createEC(std::initializer_list<ExtrusionEntity*> vec, bool no_sort = false) {
     ExtrusionEntityCollection *ec = new ExtrusionEntityCollection{};
     ec->set_can_sort_reverse(!no_sort, !no_sort);
-    ec->entities = vec;
+
+    // Create a vector from the initializer list
+    ExtrusionEntitiesPtr entities(vec);
+
+    // Assign the vector to the entities
+    ec->set_entities() = std::move(entities);
+    
     return ec;
 }
+
 ExtrusionLoop* createEL(std::vector<std::initializer_list<Point>> vec) {
     ExtrusionLoop *el = new ExtrusionLoop{};
-    for (std::initializer_list<Point> &path : vec) {
+    for (const std::initializer_list<Point> &path : vec) {
         el->paths.emplace_back(ExtrusionRole::erNone);
-        el->paths.back().polyline = path;
+        Slic3r::Points points(path); // Explicitly create a Points object from the initializer list
+        el->paths.back().polyline = points;
     }
     return el;
 }
+
 
 TEST_CASE("shortest path, benchy") {
     Slic3r::Point scaledStart{ 0,0 };
@@ -391,7 +433,7 @@ SCENARIO("Path chaining", "[Geometry][!mayfail]") {
         }
         const ExtrusionPath pattern(ExtrusionRole::erPerimeter);
         THEN("Chained taking the shortest path with extrusionpaths") {
-            ExtrusionEntityCollection coll;
+            Slic3r::ExtrusionEntityCollection coll;
             for (auto poly : polylines)
                 coll.entities.push_back(new ExtrusionPath(poly, pattern));
             chain_and_reorder_extrusion_entities(coll.entities, &polylines[18].points.back());
