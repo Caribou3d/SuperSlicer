@@ -15,9 +15,11 @@ class BoundingBox3;
 class MultiPoint
 {
 public:
-    //TODO: makes that private?
-    Points points;
+    // Public getter for points
+    const Points& get_points() const { return points; }
     
+    Points points;
+
     MultiPoint() {}
     MultiPoint(const MultiPoint &other) : points(other.points) {}
     MultiPoint(MultiPoint &&other) : points(std::move(other.points)) {}
@@ -45,11 +47,7 @@ public:
     double length() const;
     bool   is_valid() const { return this->points.size() >= 2; }
 
-    // Return index of a polygon point exactly equal to point.
-    // Return -1 if no such point exists.
     int  find_point(const Point &point) const;
-    // Return index of the closest point to point closer than scaled_epsilon.
-    // Return -1 if no such point exists.
     int  find_point(const Point &point, const coordf_t scaled_epsilon) const;
     bool has_boundary_point(const Point &point) const;
     int  closest_point_index(const Point &point) const {
@@ -69,9 +67,7 @@ public:
     }
     const Point* closest_point(const Point &point) const { return this->points.empty() ? nullptr : &this->points[this->closest_point_index(point)]; }
     BoundingBox bounding_box() const;
-    // Return true if there are exact duplicates.
     bool has_duplicate_points() const;
-    // Remove exact duplicates, return true if any duplicate has been removed.
     bool remove_duplicate_points();
     virtual void clear() { this->points.clear(); }
     void append(const Point &point) { this->points.push_back(point); }
@@ -88,10 +84,8 @@ public:
     }
 
     bool intersection(const Line& line, Point* intersection) const;
-    // if the line cross multiple times, it will return the poitn nearest from line.a
     bool first_intersection(const Line& line, Point* intersection) const;
     bool intersections(const Line &line, Points *intersections) const;
-    // Projection of a point onto the lines defined by the points.
     virtual std::pair<Point, size_t> point_projection(const Point &point) const;
 
     static Points _douglas_peucker(const Points& points, const double tolerance);

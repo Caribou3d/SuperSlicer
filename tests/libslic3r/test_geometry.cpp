@@ -11,6 +11,7 @@
 #include "libslic3r/ClipperUtils.hpp"
 #include "libslic3r/ShortestPath.hpp"
 #include "libslic3r/ExtrusionEntityCollection.hpp"
+
 //#include <random>
 //#include "libnest2d/tools/benchmark.h"
 #include "libslic3r/SVG.hpp"
@@ -21,67 +22,39 @@
 
 using namespace Slic3r;
 
-// ExtrusionPath* createEP(std::initializer_list<Point> vec) {
-//     ExtrusionPath *ep = new ExtrusionPath{ ExtrusionRole::erNone };
-//     ep->polyline = vec;
-//     return ep;
-// }
+ExtrusionPath* createEP(std::initializer_list<Point> vec) {
+    ExtrusionPath *ep = new ExtrusionPath{ ExtrusionRole::erNone };
+    ep->polyline = vec;
+    return ep;
+}
 // ExtrusionEntityCollection* createEC(std::initializer_list<ExtrusionEntity*> vec, bool no_sort = false) {
 //     ExtrusionEntityCollection *ec = new ExtrusionEntityCollection{};
 //     ec->set_can_sort_reverse(!no_sort, !no_sort);
 //     ec->entities = vec;
 //     return ec;
 // }
-// ExtrusionLoop* createEL(std::vector<std::initializer_list<Point>> vec) {
-//     ExtrusionLoop *el = new ExtrusionLoop{};
-//     for (std::initializer_list<Point> &path : vec) {
-//         el->paths.emplace_back(ExtrusionRole::erNone);
-//         el->paths.back().polyline = path;
-//     }
-//     return el;
-// }
-
-
-
-Slic3r::ExtrusionPath* createEP(std::initializer_list<Slic3r::Point> vec) {
-    Slic3r::ExtrusionPath *ep = new Slic3r::ExtrusionPath{ Slic3r::ExtrusionRole::erNone };
-    Slic3r::PolylineOrArc polyline_or_arc{vec};  // Convert initializer_list to PolylineOrArc
-    ep->polyline = polyline_or_arc;  // Assign PolylineOrArc to polyline
-    return ep;
-}
-
-// ExtrusionEntityCollection* createEC(std::initializer_list<ExtrusionEntity*> vec, bool no_sort = false) {
-//     ExtrusionEntityCollection *ec = new ExtrusionEntityCollection{};
-//     ec->set_can_sort_reverse(!no_sort, !no_sort);
-//     ec->set_entities() = vec; // Use set_entities() instead of directly assigning to m_entities
-//     return ec;
-// }
-
-
 
 ExtrusionEntityCollection* createEC(std::initializer_list<ExtrusionEntity*> vec, bool no_sort = false) {
     ExtrusionEntityCollection *ec = new ExtrusionEntityCollection{};
     ec->set_can_sort_reverse(!no_sort, !no_sort);
 
-    // Create a vector from the initializer list
-    ExtrusionEntitiesPtr entities(vec);
+    // Use set_entities() to get a modifiable reference to the container
+    auto& entity_container = ec->set_entities();
+    entity_container.clear();
+    entity_container.insert(entity_container.end(), vec.begin(), vec.end());
 
-    // Assign the vector to the entities
-    ec->set_entities() = std::move(entities);
-    
     return ec;
 }
 
+
 ExtrusionLoop* createEL(std::vector<std::initializer_list<Point>> vec) {
     ExtrusionLoop *el = new ExtrusionLoop{};
-    for (const std::initializer_list<Point> &path : vec) {
+    for (std::initializer_list<Point> &path : vec) {
         el->paths.emplace_back(ExtrusionRole::erNone);
-        Slic3r::Points points(path); // Explicitly create a Points object from the initializer list
-        el->paths.back().polyline = points;
+        el->paths.back().polyline = path;
     }
     return el;
 }
-
 
 TEST_CASE("shortest path, benchy") {
     Slic3r::Point scaledStart{ 0,0 };
@@ -433,66 +406,132 @@ SCENARIO("Path chaining", "[Geometry][!mayfail]") {
         }
         const ExtrusionPath pattern(ExtrusionRole::erPerimeter);
         THEN("Chained taking the shortest path with extrusionpaths") {
-            Slic3r::ExtrusionEntityCollection coll;
+            // ExtrusionEntityCollection coll;
+            // for (auto poly : polylines)
+            //     coll.entities.push_back(new ExtrusionPath(poly, pattern));
+            // chain_and_reorder_extrusion_entities(coll.entities, &polylines[18].points.back());
+            // double connection_length = 0.;
+            // std::cout << "{ {" << coll.entities[0]->as_polyline().points.front().x() << ", " << coll.entities[0]->as_polyline().points.front().y() << "}, {" << coll.entities[0]->as_polyline().points.back().x() << ", " << coll.entities[0]->as_polyline().points.back().y() << "} },\n";
+            // for (size_t i = 1; i < coll.entities.size(); ++i) {
+            //     const Polyline& pl1 = coll.entities[i - 1]->as_polyline();
+            //     const Polyline& pl2 = coll.entities[i]->as_polyline();
+            //     connection_length += (pl2.first_point() - pl1.last_point()).cast<double>().norm();
+            //     std::cout << "{ {" << coll.entities[i]->as_polyline().points.front().x() << ", " << coll.entities[i]->as_polyline().points.front().y() << "}, {" << coll.entities[i]->as_polyline().points.back().x() << ", " << coll.entities[i]->as_polyline().points.back().y() << "} },\n";
+            // }
+
+            ExtrusionEntityCollection coll;
+
+            auto& entity_container = coll.set_entities();
+            
             for (auto poly : polylines)
-                coll.entities.push_back(new ExtrusionPath(poly, pattern));
-            chain_and_reorder_extrusion_entities(coll.entities, &polylines[18].points.back());
+                entity_container.push_back(new ExtrusionPath(poly, pattern));
+
+            chain_and_reorder_extrusion_entities(entity_container, &polylines[18].points.back());
+            
             double connection_length = 0.;
-            std::cout << "{ {" << coll.entities[0]->as_polyline().points.front().x() << ", " << coll.entities[0]->as_polyline().points.front().y() << "}, {" << coll.entities[0]->as_polyline().points.back().x() << ", " << coll.entities[0]->as_polyline().points.back().y() << "} },\n";
-            for (size_t i = 1; i < coll.entities.size(); ++i) {
-                const Polyline& pl1 = coll.entities[i - 1]->as_polyline();
-                const Polyline& pl2 = coll.entities[i]->as_polyline();
-                connection_length += (pl2.first_point() - pl1.last_point()).cast<double>().norm();
-                std::cout << "{ {" << coll.entities[i]->as_polyline().points.front().x() << ", " << coll.entities[i]->as_polyline().points.front().y() << "}, {" << coll.entities[i]->as_polyline().points.back().x() << ", " << coll.entities[i]->as_polyline().points.back().y() << "} },\n";
+            auto first_polyline_points = coll.entities().front()->as_polyline().get_points();
+            std::cout << "{ {" << first_polyline_points.front().x() << ", " << first_polyline_points.front().y() << "}, {" << first_polyline_points.back().x() << ", " << first_polyline_points.back().y() << "} },\n";
+            
+            for (size_t i = 1; i < coll.entities().size(); ++i) {
+                const auto& pl1_points = coll.entities()[i - 1]->as_polyline().get_points();
+                const auto& pl2_points = coll.entities()[i]->as_polyline().get_points();
+                connection_length += (pl2_points.front() - pl1_points.back()).cast<double>().norm();
+                std::cout << "{ {" << pl2_points.front().x() << ", " << pl2_points.front().y() << "}, {" << pl2_points.back().x() << ", " << pl2_points.back().y() << "} },\n";
             }
+
             REQUIRE(connection_length < 85206000.);
         }
         THEN("Chained can't unfold a eeCollection") {
+            // ExtrusionEntityCollection coll;
+            // for (auto poly : polylines)
+            //     coll.entities.push_back(new ExtrusionPath(poly, pattern));
+            // ExtrusionEntitiesPtr data{ &coll };
+            // chain_and_reorder_extrusion_entities(data, &polylines[18].points.back());
+            // double connection_length = 0.;
+            // for (size_t i = 1; i < coll.entities.size(); ++i) {
+            //     const Polyline& pl1 = coll.entities[i - 1]->as_polyline();
+            //     const Polyline& pl2 = coll.entities[i]->as_polyline();
+            //     connection_length += (pl2.first_point() - pl1.last_point()).cast<double>().norm();
+            // }
             ExtrusionEntityCollection coll;
-            for (auto poly : polylines)
-                coll.entities.push_back(new ExtrusionPath(poly, pattern));
+            for (auto poly : polylines) {
+                coll.set_entities().push_back(new ExtrusionPath(poly, pattern));
+            }
             ExtrusionEntitiesPtr data{ &coll };
             chain_and_reorder_extrusion_entities(data, &polylines[18].points.back());
+
             double connection_length = 0.;
-            for (size_t i = 1; i < coll.entities.size(); ++i) {
-                const Polyline& pl1 = coll.entities[i - 1]->as_polyline();
-                const Polyline& pl2 = coll.entities[i]->as_polyline();
-                connection_length += (pl2.first_point() - pl1.last_point()).cast<double>().norm();
-            }
+            for (size_t i = 1; i < coll.entities().size(); ++i) {
+                const auto& pl1_points = coll.entities()[i - 1]->as_polyline().get_points();
+                const auto& pl2_points = coll.entities()[i]->as_polyline().get_points();
+                connection_length += (pl2_points.front() - pl1_points.back()).cast<double>().norm();
+            }            
             REQUIRE(connection_length > 85206000.);
-            REQUIRE(polylines[18].points.front() != coll.entities[18]->first_point());
+            REQUIRE(polylines[18].points.front() != coll.entities()[18]->first_point());
         }
         THEN("Chained does not take the shortest path with extrusionpaths if in an un-sortable un-reversable collection") {
+            // ExtrusionEntityCollection coll;
+            // for (auto poly : polylines)
+            //     coll.entities.push_back(new ExtrusionPath(poly, pattern));
+            // ExtrusionEntitiesPtr data{ &coll };
+            // coll.set_can_sort_reverse(false, false);
+            // chain_and_reorder_extrusion_entities(data, &polylines[18].points.back());
+            // double connection_length = 0.;
+            // for (size_t i = 1; i < coll.entities.size(); ++i) {
+            //     const Polyline& pl1 = coll.entities[i - 1]->as_polyline();
+            //     const Polyline& pl2 = coll.entities[i]->as_polyline();
+            //     connection_length += (pl2.first_point() - pl1.last_point()).cast<double>().norm();
+            // }
+
             ExtrusionEntityCollection coll;
-            for (auto poly : polylines)
-                coll.entities.push_back(new ExtrusionPath(poly, pattern));
+            auto& entity_container = coll.set_entities();
+            for (auto poly : polylines) {
+                entity_container.push_back(new ExtrusionPath(poly, pattern));
+            }
             ExtrusionEntitiesPtr data{ &coll };
             coll.set_can_sort_reverse(false, false);
             chain_and_reorder_extrusion_entities(data, &polylines[18].points.back());
+
             double connection_length = 0.;
-            for (size_t i = 1; i < coll.entities.size(); ++i) {
-                const Polyline& pl1 = coll.entities[i - 1]->as_polyline();
-                const Polyline& pl2 = coll.entities[i]->as_polyline();
-                connection_length += (pl2.first_point() - pl1.last_point()).cast<double>().norm();
-            }
+            for (size_t i = 1; i < coll.entities().size(); ++i) {
+                const auto& pl1_points = coll.entities()[i - 1]->as_polyline().get_points();
+                const auto& pl2_points = coll.entities()[i]->as_polyline().get_points();
+                connection_length += (pl2_points.front() - pl1_points.back()).cast<double>().norm();
+            }            
             REQUIRE(connection_length > 85206000.);
-            REQUIRE(polylines[18].points.front() == coll.entities[18]->first_point());
+            REQUIRE(polylines[18].points.front() == coll.entities()[18]->first_point());
         }
         THEN("Chained does not take the shortest path with extrusionpaths if in an un-sortable collection") {
+            // ExtrusionEntityCollection coll;
+            // for (auto poly : polylines)
+            //     coll.entities.push_back(new ExtrusionPath(poly, pattern));
+            // ExtrusionEntitiesPtr data{ &coll };
+            // coll.set_can_sort_reverse(false, true);
+            // chain_and_reorder_extrusion_entities(data, &polylines[18].points.back());
+            // double connection_length = 0.;
+            // for (size_t i = 1; i < coll.entities.size(); ++i) {
+            //     const Polyline& pl1 = coll.entities[i - 1]->as_polyline();
+            //     const Polyline& pl2 = coll.entities[i]->as_polyline();
+            //     connection_length += (pl2.first_point() - pl1.last_point()).cast<double>().norm();
+            // }
             ExtrusionEntityCollection coll;
-            for (auto poly : polylines)
-                coll.entities.push_back(new ExtrusionPath(poly, pattern));
+            auto& entity_container = coll.set_entities();
+            for (auto poly : polylines) {
+                entity_container.push_back(new ExtrusionPath(poly, pattern));
+            }
             ExtrusionEntitiesPtr data{ &coll };
             coll.set_can_sort_reverse(false, true);
             chain_and_reorder_extrusion_entities(data, &polylines[18].points.back());
+
             double connection_length = 0.;
-            for (size_t i = 1; i < coll.entities.size(); ++i) {
-                const Polyline& pl1 = coll.entities[i - 1]->as_polyline();
-                const Polyline& pl2 = coll.entities[i]->as_polyline();
-                connection_length += (pl2.first_point() - pl1.last_point()).cast<double>().norm();
+            for (size_t i = 1; i < coll.entities().size(); ++i) {
+                const auto& pl1_points = coll.entities()[i - 1]->as_polyline().get_points();
+                const auto& pl2_points = coll.entities()[i]->as_polyline().get_points();
+                connection_length += (pl2_points.front() - pl1_points.back()).cast<double>().norm();
             }
+
             REQUIRE(connection_length > 85206000.);
-            REQUIRE(polylines[18].points.front() != coll.entities[18]->first_point());
+            REQUIRE(polylines[18].points.front() != coll.entities()[18]->first_point());
         }
 	}
 	GIVEN("Loop pieces") {
