@@ -1293,18 +1293,11 @@ void TextCtrl::change_field_value(wxEvent& event)
 wxWindow* CheckBox::GetNewWin(wxWindow* parent, const wxString& label /*= wxEmptyString*/)
 {
 #ifdef __WXGTK2__
+    int my_em_unit = em_unit(parent);
     //gtk2 can't resize checkboxes, so we are using togglable buttons instead
-    if (m_em_unit > 14) {
-        size = wxSize(def_width_thinner() * m_em_unit / 2, def_width_thinner() * m_em_unit / 2);
-        auto temp = new wxToggleButton(m_parent, wxID_ANY, wxString(" "), wxDefaultPosition, size, m_opt.is_script ? wxCHK_3STATE : wxCHK_2STATE);
-        temp->Bind(wxEVT_TOGGLEBUTTON, ([this, temp](wxCommandEvent e) {
-            m_is_na_val = false;
-            if (temp->GetValue())
-                temp->SetLabel("X");
-            else
-                temp->SetLabel("");
-            on_change_field();
-        }), temp->GetId());
+    if (my_em_unit > 14) {
+        wxSize size = wxSize(def_width_thinner() * my_em_unit / 2, def_width_thinner() * my_em_unit / 2);
+        auto temp = new wxToggleButton(parent, wxID_ANY, wxString(" "), wxDefaultPosition, size, wxCHK_2STATE);
         // recast as a wxWindow to fit the calling convention
         return dynamic_cast<wxWindow*>(temp);
     }
@@ -1405,11 +1398,23 @@ void CheckBox::BUILD() {
         window->Disable();
 
 	CheckBox::SetValue(window, check_value);
-
+    
+#ifdef __WXGTK2__
+    //gtk2 can't resize checkboxes, so we are using togglable buttons instead
+    window->Bind(wxEVT_TOGGLEBUTTON, ([this](wxCommandEvent e) {
+        m_is_na_val = false;
+        if (static_cast<wxToggleButton*>(window)->GetValue())
+            static_cast<wxToggleButton*>(window)->SetLabel("X");
+        else
+            static_cast<wxToggleButton*>(window)->SetLabel("");
+        on_change_field();
+    }), window->GetId());
+#else
 	window->Bind(wxEVT_CHECKBOX, [this](wxCommandEvent e) {
         m_is_na_val = false;
 	    on_change_field();
 	});
+#endif
 
     // you need to set the window before the tooltip
     this->set_tooltip(check_value ? "true" : "false");
