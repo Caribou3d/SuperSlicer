@@ -14,7 +14,7 @@
 #include <wx/display.h>
 #include <wx/file.h>
 #include "wxExtensions.hpp"
-#include "Jobs/ArrangeJob.hpp"
+//#include "Jobs/ArrangeJob2.hpp"
 #include <unordered_map>
 
 #pragma optimize("", off)
@@ -681,11 +681,12 @@ void CalibrationPressureAdvDialog::create_geometry(wxCommandEvent& event_args) {
         //update print config (done at reslice but we need it here)
         if (plat->printer_technology() == ptFFF)
             plat->fff_print().apply(plat->model(), *plat->config());
-        std::shared_ptr<ProgressIndicatorStub> fake_statusbar = std::make_shared<ProgressIndicatorStub>();
-        ArrangeJob arranger(std::dynamic_pointer_cast<ProgressIndicator>(fake_statusbar), plat);
-        arranger.prepare_all();
-        arranger.process();
-        arranger.finalize();
+        plat->arrange();
+        //std::shared_ptr<ProgressIndicatorStub> fake_statusbar = std::make_shared<ProgressIndicatorStub>();
+        //ArrangeJob arranger(std::dynamic_pointer_cast<ProgressIndicator>(fake_statusbar), plat);
+        //arranger.prepare_all();
+        //arranger.process();
+        //arranger.finalize();
     }
 
     if (extrusion_role != "Verify") {//don't auto slice so user can manual add PA values
