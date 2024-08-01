@@ -1311,9 +1311,9 @@ wxWindow* CheckBox::GetNewWin(wxWindow* parent, const wxString& label /*= wxEmpt
 void CheckBox::SetValue(wxWindow* win, bool value)
 {
 #ifdef __WXGTK2__
-    if (wxToggleButton* tgl = dynamic_cast<wxToggleButton*>(window)) {
-        tgl->SetValue(new_val);
-        if (new_val)
+    if (wxToggleButton* tgl = dynamic_cast<wxToggleButton*>(win)) {
+        tgl->SetValue(value);
+        if (value)
             tgl->SetLabel("X");
         else
             tgl->SetLabel("");
@@ -1336,7 +1336,7 @@ void CheckBox::SetValue(wxWindow* win, bool value)
 bool CheckBox::GetValue(wxWindow* win)
 {
 #ifdef __WXGTK2__
-    if (wxToggleButton* chk = dynamic_cast<wxToggleButton*>(window))
+    if (wxToggleButton* chk = dynamic_cast<wxToggleButton*>(win))
         return chk->GetValue();
 #endif
     if (wxGetApp().suppress_round_corners())
@@ -1362,7 +1362,7 @@ void CheckBox::Rescale(wxWindow* win)
         return;
     }
 #ifdef __WXGTK2__
-    if (wxToggleButton* chk = dynamic_cast<wxToggleButton*>(window))
+    if (wxToggleButton* chk = dynamic_cast<wxToggleButton*>(win))
         chk->Rescale();
 #endif
 }
